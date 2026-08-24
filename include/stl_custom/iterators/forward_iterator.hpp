@@ -1,6 +1,5 @@
 #pragma once
 #include <cstddef>
-#include <type_traits>
 #include <iterator>
 
 namespace stl_custom {
@@ -36,10 +35,7 @@ public:
 
 	//pre-increment operator
 	forward_iterator& operator++(){
-		if(node_) {
-			node_ = node_->next;
-			return *this;
-		}
+		node_ = node_->next;
 		return *this;
 	}
 
