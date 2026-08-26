@@ -39,9 +39,25 @@ public:
 		other.capacity_ = 0;
 	}
 
-	// copy assignement : copy and swap idiom
-	dynamic_vector& operator=(dynamic_vector other) noexcept {
-		swap(other);
+	// copy assignement 
+	dynamic_vector& operator=(const dynamic_vector& other) {
+		if(this == &other) return *this;
+		dynamic_vector tmp(other);
+		swap(tmp);
+		return *this;
+	}
+	dynamic_vector& operator=(dynamic_vector&& other) noexcept {
+		if(this==&other) return *this;
+		destroy_all();
+		::operator delete(data_);
+		data_ = other.data_;
+		size_ = other.size_;
+		capacity_ = other.capacity_;
+
+		other.data_ = nullptr;
+		other.size_ = 0;
+		other.capacity_ = 0;
+
 		return *this;
 	}
 
