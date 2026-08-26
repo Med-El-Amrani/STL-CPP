@@ -1,20 +1,26 @@
 #pragma once
 #include <cstddef>
 #include <iterator>
-
+#include <type_traits>
 namespace stl_custom {
 
 template<typename T>
 class random_access_iterator {
+	template<typename>
+	friend class random_access_iterator;
 public:
     using iterator_category = std::random_access_iterator_tag;
-    using value_type = T;
+    using value_type =std::remove_cv_t<T>;
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
 
     random_access_iterator() : ptr_(nullptr) {}
     explicit random_access_iterator(T* ptr) : ptr_(ptr) {}
+
+    // to enable constructing iterator from const_iterator(U = const T)
+    template<typename U, typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+    random_access_iterator(const random_access_iterator<U>& other) : ptr_(other.ptr_) {}
 
     // dereference operator
     reference operator*() const {
