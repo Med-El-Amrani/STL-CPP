@@ -4,26 +4,36 @@
 #include <utility>
 
 namespace stl_custom {
+
+struct BidirectionalNodeBase {
+	BidirectionalNodeBase* next = nullptr;
+	BidirectionalNodeBase* previous = nullptr;
+
+	BidirectionalNodeBase() = default;
+	
+	BidirectionalNodeBase(BidirectionalNodeBase* next_, BidirectionalNodeBase* previous_)
+			: next(next_), previous(previous_)
+	{}
+};
+
 template< typename T>
-struct BidirectionalNode {
+struct BidirectionalNode : BidirectionalNodeBase {
 	T value;
-	BidirectionalNode* next = nullptr;
-	BidirectionalNode* previous = nullptr;
 
 	// Pour push_back(const T&), push_front(const T&), copy constructor...
-	BidirectionalNode(const T& value_, BidirectionalNode* next_, BidirectionalNode* previous_)
-		: value(value_), next(next_), previous(previous_)
+	BidirectionalNode(const T& value_, BidirectionalNodeBase* next_, BidirectionalNodeBase* previous_)
+		: BidirectionalNodeBase(next_, previous_), value(value_)
 		{}
 
 	// Pour push_back(T&&), push_front(T&&)
-	BidirectionalNode(T&& value_, BidirectionalNode* next_, BidirectionalNode* previous_)
-		: value(std::move(value_)), next(next_), previous(previous_)
+	BidirectionalNode(T&& value_, BidirectionalNodeBase* next_, BidirectionalNodeBase* previous_)
+		: BidirectionalNodeBase(next_, previous_), value(std::move(value_))
 		{}
 
 	// pour emplace
 	template<typename... Args>
-	BidirectionalNode(BidirectionalNode* next_, BidirectionalNode* previous_, Args&&... args)
-		: value(std::forward<Args>(args)...), next(next_), previous(previous_) 
+	BidirectionalNode(BidirectionalNodeBase* next_, BidirectionalNodeBase* previous_, Args&&... args)
+		: BidirectionalNodeBase(next_, previous_), value(std::forward<Args>(args)...)
 		{}
 };
 
@@ -39,16 +49,16 @@ public:
 	
 	// constrcutors
 	bidirectional_iterator() : node_(nullptr) {}
-	explicit bidirectional_iterator(NodeT* node) : node_(node) {}
+	explicit bidirectional_iterator(BidirectionalNodeBase* node) : node_(node) {}
 
 	// Derefrence operator
 	reference operator*() const {
-		return node_->value;
+		return static_cast<NodeT*>(node_)->value;
 	}
 
 	// arrow operator
 	pointer operator->() const {
-		return &(node_->value);
+		return &(static_cast<NodeT*>(node_)->value);
 	}
 	
 	// pre-increment
@@ -84,7 +94,7 @@ public:
 	}
 	
 private:
-	NodeT* node_;
+	BidirectionalNodeBase* node_;
 };
 
 } // stl_custom
