@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <iterator>
+#include <utility>
 
 namespace stl_custom {
 template< typename T>
@@ -8,6 +9,22 @@ struct BidirectionalNode {
 	T value;
 	BidirectionalNode* next = nullptr;
 	BidirectionalNode* previous = nullptr;
+
+	// Pour push_back(const T&), push_front(const T&), copy constructor...
+	BidirectionalNode(const T& value_, BidirectionalNode* next_, BidirectionalNode* previous_)
+		: value(value_), next(next_), previous(previous_)
+		{}
+
+	// Pour push_back(T&&), push_front(T&&)
+	BidirectionalNode(T&& value_, BidirectionalNode* next_, BidirectionalNode* previous_)
+		: value(std::move(value_)), next(next_), previous(previous_)
+		{}
+
+	// pour emplace
+	template<typename... Args>
+	BidirectionalNode(BidirectionalNode* next_, BidirectionalNode* previous_, Args&&... args)
+		: value(std::forward<Args>(args)...), next(next_), previous(previous_) 
+		{}
 };
 
 template<typename T, typename NodeT = BidirectionalNode<T>> 
