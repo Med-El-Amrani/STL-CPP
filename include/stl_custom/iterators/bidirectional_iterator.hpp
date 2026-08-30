@@ -61,6 +61,9 @@ public:
 		return &(static_cast<NodeT*>(node_)->value);
 	}
 	
+	// exposes the node's pointer - used in doubly_list::erase(iterator)
+	BidirectionalNodeBase* base() const { return node_; }
+	
 	// pre-increment
 	bidirectional_iterator& operator++(){
 		node_ = node_->next;
@@ -83,6 +86,7 @@ public:
 		--(*this);
 		return tmp;
 	}
+
 
 	// comparison operators
 	friend bool operator==(const bidirectional_iterator& a, const bidirectional_iterator& b){

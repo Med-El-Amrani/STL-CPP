@@ -156,6 +156,20 @@ void pop_back(){
 	--size_;
 }
 
+
+iterator erase(iterator pos){
+	BidirectionalNodeBase* node = pos.base();
+	BidirectionalNodeBase* next = node->next;
+	
+	node->previous->next = node->next;
+	node->next->previous = node->previous;
+	
+	delete static_cast<NodeT*>(node);
+	--size_;
+	
+	return iterator(next);
+}
+
 void clear() noexcept {
 	BidirectionalNodeBase* cur = sentinel_.next;
 	while(cur != &sentinel_){
