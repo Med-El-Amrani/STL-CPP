@@ -14,7 +14,17 @@ public:
 	using iterator = random_access_iterator<T>;
 	using const_iterator = random_access_iterator<const T>;
 
+	// default constructor
 	dynamic_vector(): data_(nullptr), size_(0), capacity_(0) {}
+	// constructor with count element by default (like std::vector(count))
+	explicit dynamic_vector(std::size_t count)
+			: data_(nullptr), size_(0), capacity_(0) {
+		reserve(count);
+		for(std::size_t i = 0; i < count; ++i){
+			emplace_back();
+		}
+	}
+
 	// copy constrcutor : deep-copy 
 	dynamic_vector(const dynamic_vector& other) 
 		: data_(nullptr), size_(0), capacity_(0) {
