@@ -210,10 +210,22 @@ void swap(doubly_list& other) noexcept {
 
 // accessors
 
-T& back(){ return static_cast<NodeT*>(sentinel_.previous)->value; }
-const T& back() const { return static_cast<NodeT*>(sentinel_.previous)->value; }
-T& front(){ return static_cast<NodeT*>(sentinel_.next)->value; }
-const T& front() const { return static_cast<NodeT*>(sentinel_.next)->value; }
+T& back(){ 
+	if(empty()) throw std::underflow_error("doubly_list::back empty list");
+	return static_cast<NodeT*>(sentinel_.previous)->value; 
+}
+const T& back() const {
+	if(empty()) throw std::underflow_error("doubly_list::back empty list");
+	return static_cast<NodeT*>(sentinel_.previous)->value; 
+}
+T& front(){
+	if(empty()) throw std::underflow_error("doubly_list::front empty list");
+	return static_cast<NodeT*>(sentinel_.next)->value; 
+}
+const T& front() const {
+	if(empty()) throw std::underflow_error("doubly_list::front empty list");
+	return static_cast<NodeT*>(sentinel_.next)->value; 
+}
 
 bool empty() const noexcept { return size_ == 0; }
 std::size_t size() const noexcept { return size_; }
