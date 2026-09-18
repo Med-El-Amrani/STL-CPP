@@ -37,6 +37,13 @@ public:
 	rb_tree_iterator(): node_(nullptr) {}
 	explicit rb_tree_iterator(NodeT* node) : node_(node) {}
 
+	// Allow mutable iterators to convert to const iterators, never the reverse.
+	template<typename OtherValue, typename OtherNode,
+		std::enable_if_t<std::is_convertible<OtherNode*, NodeT*>::value &&
+			std::is_convertible<OtherValue*, Value*>::value, int> = 0>
+	rb_tree_iterator(const rb_tree_iterator<OtherValue, OtherNode>& other)
+		: node_(other.base()) {}
+
 	reference operator*() const { return node_->value; }
 	pointer operator->() const { return &node_->value; }
 
@@ -115,6 +122,9 @@ public:
    	 	header_.parent = nullptr;
    	 	header_.left = &header_;
     	header_.right = &header_;
+	}
+	explicit rbt(const Compare& comp) : header_(nullptr), comp_(comp) {
+		refresh_header();
 	}
 	~rbt(){
 		clear();
@@ -284,11 +294,64 @@ public:
 		}
 		return cend();
 	}
+	iterator lower_bound(const Key& key) {
+		node_type* current = root_;
+		node_type* candidate = &header_;
+		while (current != nullptr) {
+			if (!comp_(key_of_value_(current->value), key)) {
+				candidate = current;
+				current = current->left;
+			} else {
+				current = current->right;
+			}
+		}
+		return iterator(candidate);
+	}
+	const_iterator lower_bound(const Key& key) const {
+		const node_type* current = root_;
+		const node_type* candidate = &header_;
+		while (current != nullptr) {
+			if (!comp_(key_of_value_(current->value), key)) {
+				candidate = current;
+				current = current->left;
+			} else {
+				current = current->right;
+			}
+		}
+		return const_iterator(candidate);
+	}
+	iterator upper_bound(const Key& key) {
+		node_type* current = root_;
+		node_type* candidate = &header_;
+		while (current != nullptr) {
+			if (comp_(key, key_of_value_(current->value))) {
+				candidate = current;
+				current = current->left;
+			} else {
+				current = current->right;
+			}
+		}
+		return iterator(candidate);
+	}
+	const_iterator upper_bound(const Key& key) const {
+		const node_type* current = root_;
+		const node_type* candidate = &header_;
+		while (current != nullptr) {
+			if (comp_(key, key_of_value_(current->value))) {
+				candidate = current;
+				current = current->left;
+			} else {
+				current = current->right;
+			}
+		}
+		return const_iterator(candidate);
+	}
 	bool contains(const Key& key) const {
 		return find(key) != cend();
 	}
 
 	// accessors
+	Compare key_comp() const { return comp_; }
 	bool empty() const noexcept { return size_ == 0; }
 	std::size_t size() const noexcept { return size_; }
 
